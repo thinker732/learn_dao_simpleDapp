@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My First dApp</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        div {
+            width: 20%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        button {
+            width: 100%;
+            margin: 10px 0px 5px 0px;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h1>This is my dApp!</h1>
+        <p>Here we can set or get the mood:</p>
+        <label for="mood">Input Mood:</label> <br />
+        <input type="text" id="mood" />
+
+        <button onclick="getMood()">Get Mood</button>
+        <button onclick="setMood()">Set Mood</button>
+        <p id="showMood"></p>
+    </div>
+</body>
+<script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+
+<script>
+    
+    const MoodContractAddress ="0xF09A9890B0B0a8aDb5D58e4EbD3CC60EA6b88527";
+    const MoodContractABI = [{
+            "inputs": [],
+            "name": "getMood",
+            "outputs": [{
+                "internalType": "string",
+                "name": "",
+                "type": "string"
+            }],
+            "stateMutability": "view",
+            "type": "function"
+        },
+        {
+            "inputs": [{
+                "internalType": "string",
+                "name": "_mood",
+                "type": "string"
+            }],
+            "name": "setMood",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+    ]
+    
+    /**
+      
+     **/
+    //setting up cinstace a instace of ethers.providers.Web3Provider ,to interact with Metamask
+     const provider = new ethers.providers.Web3Provider(
+      window.ethereum,
+      "goerli"
+    );
+    async function requestAccountsAndSetupContract() {
+    try {
+        
+        await ethereum.request({ method: 'eth_requestAccounts' });
+        const accounts = await provider.listAccounts();
+        const signer = provider.getSigner(accounts[0]);
+        MoodContract = new ethers.Contract(
+            MoodContractAddress,
+            MoodContractABI,
+            signer
+        );
+        // continue with the rest of your code
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+requestAccountsAndSetupContract();
+
+
+    /***
+      interact 
+     ***/
+
+    // Get Mood button click event handler
+    async function getMood() {
+        try {
+            console.log("here")
+            // Call getMood function
+            const mood = await MoodContract.getMood();
+
+            // Update UI with the retrieved mood
+            console.log('Current Mood:', mood);
+        } catch (error) {
+            console.error('Failed to get mood:', error);
+        }
+    }
+
+    async function setMood() {
+        const mood = document.getElementById("mood").value;
+        const setMoodPromise = MoodContract.setMood(mood);
+        await setMoodPromise;
+    }
+
+</script>
+
+</html>
